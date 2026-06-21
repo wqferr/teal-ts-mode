@@ -32,15 +32,10 @@
   "Major mode for editing Teal files."
   :prefix "teal-ts-"
   :group 'languages)
-(defcustom teal-ts-indent-level 4
+(defcustom teal-ts-mode-indent-offset 4
   "Offset of each indent level in Teal files."
   :type 'natnum
   :safe 'natnump)
-
-(defvar teal-ts--valid-metamethods
-  '("__index" "__newindex" "__call" "__concat" "__unm" "__add" "__sub" "__mul"
-    "__div" "__idiv" "__mod" "__pow" "__tostring" "__metatable" "__eq" "__lt"
-    "__le" "__mode" "__gc" "__len" "__iter"))
 
 (defvar teal-ts-mode--builtins
   '("assert" "collectgarbage" "coroutine" "debug" "dofile"
@@ -147,7 +142,7 @@
    '((break) @font-lock-keyword-face
      (boolean) @font-lock-constant-face
      (nil) @font-lock-constant-face
-     (["local" "global" "end" "in" "if" "then" "as"
+     (["record" "interface" "local" "global" "end" "in" "if" "then" "as"
        "elseif" "else" "goto" "do" "while" "for" "type"
        "repeat" "until" "function" "return"] @font-lock-keyword-face))
 
@@ -189,20 +184,20 @@
 
 (defvar teal-ts-mode--indent-rules
   `((teal
-     ((parent-is "chunk") column-0 0)
+     ((parent-is "program") column-0 0)
      ((node-is "comment_end") column-0 0)
      ((parent-is "block") parent-bol 0)
-     ((node-is "}") parent-bol 0)
-     ((node-is ")") parent-bol 0)
-     ((node-is "else_block") parent-bol 0)
-     ((node-is "elseif_block") parent-bol 0)
-     ((node-is "end") parent-bol 0)
+     ((node-is "}") parent-bol -teal-ts-mode-indent-offset)
+     ((node-is ")") parent-bol -teal-ts-mode-indent-offset)
+     ((node-is "else_block") parent-bol -teal-ts-mode-indent-offset)
+     ((node-is "elseif_block") parent-bol -teal-ts-mode-indent-offset)
+     ((node-is "end") parent-bol -teal-ts-mode-indent-offset)
      ((node-is "until") parent-bol 0)
+     ((node-is "function_body") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "generic_for_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "function_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "record_body") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "interface_body") parent-bol teal-ts-mode-indent-offset)
+     ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
+     ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "if_statement") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "else_block") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "elseif_block") parent-bol teal-ts-mode-indent-offset)
@@ -210,7 +205,6 @@
      ((parent-is "while_statement") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "table_constructor") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "arguments") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "parameters") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "ERROR") no-indent 0))))
 
 (defun teal-ts-mode--defun-name (node)
@@ -292,6 +286,8 @@ Return nil if there is no name or if NODE is not a defun node."
     ;; Imenu.
     (setq-local treesit-simple-imenu-settings
                 `(("Variable" "\\`var\\'" nil nil)
+                  ("Record" "\\`record_declaration\\'" nil nil)
+                  ("Interface" "\\`interface_declaration\\'" nil nil)
                   ("Function" ,(rx bos (or "function_declaration"
                                            "function_definition"
                                            "field")
