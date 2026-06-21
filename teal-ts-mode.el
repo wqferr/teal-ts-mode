@@ -28,8 +28,6 @@
    :commit "05d276e737055e6f77a21335b7573c9d3c091e2f")
  t)
 
-(setq treesit--font-lock-verbose t)
-
 (defgroup teal-ts nil
   "Major mode for editing Teal files."
   :prefix "teal-ts-"
