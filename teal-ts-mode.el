@@ -143,7 +143,7 @@
      (boolean) @font-lock-constant-face
      (nil) @font-lock-constant-face
      (["record" "interface" "local" "global" "end" "in" "if" "then" "as"
-       "elseif" "else" "goto" "do" "while" "for" "type"
+       "elseif" "else" "goto" "do" "while" "for" "type" "metamethod"
        "repeat" "until" "function" "return"] @font-lock-keyword-face))
 
    :language 'teal
@@ -187,11 +187,11 @@
      ((parent-is "program") column-0 0)
      ((node-is "comment_end") column-0 0)
      ((parent-is "block") parent-bol 0)
-     ((node-is "}") parent-bol -teal-ts-mode-indent-offset)
-     ((node-is ")") parent-bol -teal-ts-mode-indent-offset)
-     ((node-is "else_block") parent-bol -teal-ts-mode-indent-offset)
-     ((node-is "elseif_block") parent-bol -teal-ts-mode-indent-offset)
-     ((node-is "end") parent-bol -teal-ts-mode-indent-offset)
+     ((node-is "}") parent-bol 0)
+     ((node-is ")") parent-bol 0)
+     ((node-is "else_block") parent-bol 0)
+     ((node-is "elseif_block") parent-bol 0)
+     ((node-is "end") parent-bol 0)
      ((node-is "until") parent-bol 0)
      ((node-is "function_body") parent-bol teal-ts-mode-indent-offset)
      ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
