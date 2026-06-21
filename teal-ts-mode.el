@@ -182,30 +182,37 @@
    '((ERROR) @font-lock-warning-face))
   "Tree-sitter font-lock settings for `teal-ts-mode'.")
 
+(setq treesit--indent-verbose t)
+
 (defvar teal-ts-mode--indent-rules
-  `((teal
-     ((parent-is "program") column-0 0)
-     ((node-is "comment_end") column-0 0)
-     ((parent-is "block") parent-bol 0)
-     ((node-is "}") parent-bol 0)
-     ((node-is ")") parent-bol 0)
-     ((node-is "else_block") parent-bol 0)
-     ((node-is "elseif_block") parent-bol 0)
-     ((node-is "end") parent-bol 0)
-     ((node-is "until") parent-bol 0)
-     ((node-is "function_body") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "generic_for_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "if_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "else_block") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "elseif_block") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "repeat_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "while_statement") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "table_constructor") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "arguments") parent-bol teal-ts-mode-indent-offset)
-     ((parent-is "ERROR") no-indent 0))))
+  (let ((neg-offset (- teal-ts-mode-indent-offset)))
+        `((teal
+           ((parent-is "program") column-0 0)
+           ((node-is "comment_end") column-0 0)
+           ((node-is "}") parent-bol 0)
+           ((node-is ")") parent-bol 0)
+           ((node-is "else_block") parent-bol 0)
+           ((node-is "elseif_block") parent-bol 0)
+           ((node-is "until") parent-bol 0)
+
+           ;; This is terrible
+           ((and (not (match "end")) (parent-is "function_body")) parent-bol 0)
+           ((and (match "end") (parent-is "function_body")) parent-bol ,neg-offset)
+           ((and (match "end") (not (parent-is "function_body"))) parent-bol 0)
+
+           ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "function_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "for_body") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "while_body") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "if_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "else_block") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "elseif_block") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "repeat_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "table_constructor") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "arguments") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "ERROR") no-indent 0)))))
 
 (defun teal-ts-mode--defun-name (node)
   "Return the defun name of NODE.
@@ -265,8 +272,9 @@ Return nil if there is no name or if NODE is not a defun node."
     ;; Navigation.
     (setq-local treesit-defun-name-function #'teal-ts-mode--defun-name)
     (setq-local treesit-defun-type-regexp
-                (regexp-opt '("function_declaration"
-                              "function_definition")))
+                (regexp-opt '("function_statement"
+                              "record_declaration"
+                              "interface_declaration")))
     (setq-local treesit-sentence-type-regexp
                 (regexp-opt '("do_statement"
                               "while_statement"
@@ -274,9 +282,7 @@ Return nil if there is no name or if NODE is not a defun node."
                               "if_statement"
                               "generic_for_statement"
                               "numeric_for_statement"
-                              "var_assignment"
-                              "record_declaration"
-                              "interface_declaration")))
+                              "var_assignment")))
     (setq-local treesit-sexp-type-regexp
                 (regexp-opt '("arg"
                               "comment"
@@ -288,8 +294,7 @@ Return nil if there is no name or if NODE is not a defun node."
                 `(("Variable" "\\`var\\'" nil nil)
                   ("Record" "\\`record_declaration\\'" nil nil)
                   ("Interface" "\\`interface_declaration\\'" nil nil)
-                  ("Function" ,(rx bos (or "function_declaration"
-                                           "function_definition"
+                  ("Function" ,(rx bos (or "function_statement"
                                            "field")
                                    eos)
                    nil nil)))
