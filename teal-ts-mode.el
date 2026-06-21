@@ -198,14 +198,20 @@
            ;; This is terrible
            ((and (not (match "end")) (parent-is "function_body")) parent-bol 0)
            ((and (match "end") (parent-is "function_body")) parent-bol ,neg-offset)
-           ((and (match "end") (not (parent-is "function_body"))) parent-bol 0)
+
+           ((and (not (match "end")) (parent-is "interface_body")) parent-bol 0)
+           ((and (match "end") (parent-is "interface_body")) parent-bol ,neg-offset)
+
+           ((and (not (match "end")) (parent-is "record_body")) parent-bol 0)
+           ((and (match "end") (parent-is "record_body")) parent-bol ,neg-offset)
+           ((and (match "end") (not (or (parent-is "function_body") (parent-is "interface_body") (parent-is "record_body")))) parent-bol 0)
 
            ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "function_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "for_body") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "while_body") parent-bol teal-ts-mode-indent-offset)
-           ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
-           ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "if_statement") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "else_block") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "elseif_block") parent-bol teal-ts-mode-indent-offset)
