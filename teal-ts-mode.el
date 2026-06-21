@@ -90,10 +90,11 @@
    '((function_call
       called_object: (identifier) @font-lock-function-call-face)
      (function_call
-      called_object: (method_index
+      called_object: (index (identifier) @font-lock-variable-name-face
                       key: (identifier) @font-lock-function-call-face))
      (function_call
-      called_object: (index (identifier) @font-lock-function-call-face)))
+      called_object: (method_index (identifier) @font-lock-variable-name-face
+                      key: (identifier) @font-lock-function-call-face)))
 
    :language 'teal
    :feature 'type
@@ -128,14 +129,15 @@
       arguments: (arguments (identifier))
       @font-lock-variable-use-face)
      (function_call
-      name: (method_index_expression
-             table: (identifier) @font-lock-variable-use-face))
-     (goto_statement (identifier) @font-lock-variable-use-face))
+      called_object: (method_index
+             key: (identifier) @font-lock-variable-use-face))
+     (goto (identifier) @font-lock-variable-use-face)
+     (identifier) @font-lock-variable-use-face)
 
    :language 'teal
    :feature 'assignment
    '((var (identifier) @font-lock-variable-name-face)
-     (var (index identifier @font-lock-variable-name-face
+     (var (index (identifier) @font-lock-variable-name-face
                  key: (identifier) @font-lock-variable-name-face)))
 
    :language 'teal
@@ -144,14 +146,12 @@
 
    :language 'teal
    :feature 'keyword
-   '((break_statement) @font-lock-keyword-face
-     (true) @font-lock-constant-face
-     (false) @font-lock-constant-face
+   '((break) @font-lock-keyword-face
+     (boolean) @font-lock-constant-face
      (nil) @font-lock-constant-face
-     ["and" "do" "else" "elseif" "end" "for" "function"
-      "goto" "if" "is" "as" "in" "local" "global" "not" "or" "repeat"
-      "return" "then" "until" "while" "record" "interface" "enum"]
-     @font-lock-keyword-face)
+     (["local" "global" "end" "in" "if" "then" "as"
+       "elseif" "else" "goto" "do" "while" "for" "type"
+       "repeat" "until" "function" "return"] @font-lock-keyword-face))
 
    :language 'teal
    :feature 'string
@@ -160,7 +160,7 @@
    :language 'teal
    :feature 'comment
    '((comment) @font-lock-comment-face
-     (hash_bang_line) @font-lock-comment-face)
+     (shebang_comment) @font-lock-comment-face)
 
    :language 'teal
    :feature 'definition
@@ -172,9 +172,9 @@
       name: (identifier) @font-lock-type-face)
      (interface_declaration
       name: (identifier) @font-lock-type-face)
-     (arguments
+     (arg
       name: (identifier) @font-lock-variable-name-face)
-     (label_statement) @font-lock-variable-name-face)
+     (label) @font-lock-variable-name-face)
 
    :language 'teal
    :feature 'builtin
