@@ -87,12 +87,20 @@
                       key: (identifier) @font-lock-function-call-face))
      (function_call
       called_object: (method_index (identifier) @font-lock-variable-name-face
-                      key: (identifier) @font-lock-function-call-face)))
+                                   key: (identifier) @font-lock-function-call-face))
+     (program (function_statement
+               name: (function_name base: (identifier) @font-lock-type-face)))
+     (function_statement
+      name: (function_name entry: (identifier) @font-lock-function-name-face))
+     (function_statement
+      name: (function_name method: (identifier) @font-lock-function-name-face)))
 
    :language 'teal
    :feature 'type
    '((simple_type
-      name: (identifier) @font-lock-type-face))
+      name: (identifier) @font-lock-type-face)
+     (typearg "is" @font-lock-keyword-face)
+     (type_declaration name: (identifier) @font-lock-type-face))
 
    :language 'teal
    :feature 'constant
@@ -115,17 +123,6 @@
    :language 'teal
    :feature 'punctuation
    '(["." ":"] @font-lock-punctuation-face)
-
-   :language 'teal
-   :feature 'variable
-   '((function_call
-      arguments: (arguments (identifier))
-      @font-lock-variable-use-face)
-     (function_call
-      called_object: (method_index
-             key: (identifier) @font-lock-variable-use-face))
-     (goto (identifier) @font-lock-variable-use-face)
-     (identifier) @font-lock-variable-use-face)
 
    :language 'teal
    :feature 'assignment
@@ -177,12 +174,20 @@
               @font-lock-builtin-face)))
 
    :language 'teal
+   :feature 'variable
+   '((function_call
+      arguments: (arguments (identifier) @font-lock-variable-use-face))
+     (function_call
+      called_object: (method_index
+                      key: (identifier) @font-lock-function-name-face))
+     (goto (identifier) @font-lock-variable-use-face)
+     (identifier) @font-lock-variable-use-face)
+
+   :language 'teal
    :feature 'error
    :override t
    '((ERROR) @font-lock-warning-face))
   "Tree-sitter font-lock settings for `teal-ts-mode'.")
-
-(setq treesit--indent-verbose t)
 
 (defvar teal-ts-mode--indent-rules
   (let ((neg-offset (- teal-ts-mode-indent-offset)))
@@ -204,6 +209,7 @@
 
            ((and (not (match "end")) (parent-is "record_body")) parent-bol 0)
            ((and (match "end") (parent-is "record_body")) parent-bol ,neg-offset)
+
            ((and (match "end") (not (or (parent-is "function_body") (parent-is "interface_body") (parent-is "record_body")))) parent-bol 0)
 
            ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
