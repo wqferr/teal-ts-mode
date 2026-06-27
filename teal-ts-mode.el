@@ -99,7 +99,9 @@
    :feature 'type
    '((simple_type
       name: (identifier) @font-lock-type-face)
-     (typearg "is" @font-lock-keyword-face)
+     (typearg ("is") @font-lock-keyword-face)
+     (record_body is_types: ("is") @font-lock-keyword-face)
+     (interface_body is_types: ("is") @font-lock-keyword-face)
      (type_declaration name: (identifier) @font-lock-type-face)
      (type_index (identifier) @font-lock-type-face))
 
@@ -217,6 +219,7 @@
 
            ((parent-is "do_statement") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "function_statement") parent-bol teal-ts-mode-indent-offset)
+           ((parent-is "anon_function") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "interface_declaration") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "record_declaration") parent-bol teal-ts-mode-indent-offset)
            ((parent-is "for_body") parent-bol teal-ts-mode-indent-offset)
