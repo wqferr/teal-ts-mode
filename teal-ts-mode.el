@@ -83,10 +83,10 @@
    '((function_call
       called_object: (identifier) @font-lock-function-call-face)
      (function_call
-      called_object: (index (identifier) @font-lock-variable-name-face
+      called_object: (index (identifier) @font-lock-variable-use-face
                       key: (identifier) @font-lock-function-call-face))
      (function_call
-      called_object: (method_index (identifier) @font-lock-variable-name-face
+      called_object: (method_index (identifier) @font-lock-variable-use-face
                                    key: (identifier) @font-lock-function-call-face))
      (program (function_statement
                name: (function_name base: (identifier) @font-lock-type-face)))
@@ -100,7 +100,8 @@
    '((simple_type
       name: (identifier) @font-lock-type-face)
      (typearg "is" @font-lock-keyword-face)
-     (type_declaration name: (identifier) @font-lock-type-face))
+     (type_declaration name: (identifier) @font-lock-type-face)
+     (type_index (identifier) @font-lock-type-face))
 
    :language 'teal
    :feature 'constant
@@ -139,7 +140,7 @@
    '((break) @font-lock-keyword-face
      (boolean) @font-lock-constant-face
      (nil) @font-lock-constant-face
-     (["record" "interface" "local" "global" "end" "in" "if" "then" "as"
+     (["record" "interface" "enum" "local" "global" "end" "in" "if" "then" "as"
        "elseif" "else" "goto" "do" "while" "for" "type" "metamethod"
        "repeat" "until" "function" "return"] @font-lock-keyword-face))
 
@@ -159,6 +160,8 @@
      (function_statement
       name: (function_name method: (identifier)) @font-lock-function-name-face)
      (record_declaration
+      name: (identifier) @font-lock-type-face)
+     (enum_declaration
       name: (identifier) @font-lock-type-face)
      (interface_declaration
       name: (identifier) @font-lock-type-face)
@@ -230,7 +233,7 @@
   "Return the defun name of NODE.
 Return nil if there is no name or if NODE is not a defun node."
   (pcase (treesit-node-type node)
-    ((or "function_statement" "interface_declaration" "record_declaration")
+    ((or "function_statement" "interface_declaration" "record_declaration" "enum_declaration")
      (treesit-node-text
       (treesit-node-child-by-field-name node "name") t))
     ("var"
@@ -286,7 +289,8 @@ Return nil if there is no name or if NODE is not a defun node."
     (setq-local treesit-defun-type-regexp
                 (regexp-opt '("function_statement"
                               "record_declaration"
-                              "interface_declaration")))
+                              "interface_declaration"
+                              "enum_declaration")))
     (setq-local treesit-sentence-type-regexp
                 (regexp-opt '("do_statement"
                               "while_statement"
@@ -306,6 +310,7 @@ Return nil if there is no name or if NODE is not a defun node."
                 `(("Variable" "\\`var\\'" nil nil)
                   ("Record" "\\`record_declaration\\'" nil nil)
                   ("Interface" "\\`interface_declaration\\'" nil nil)
+                  ("Enum" "\\`enum_declaration\\'" nil nil)
                   ("Function" ,(rx bos (or "function_statement"
                                            "field")
                                    eos)
